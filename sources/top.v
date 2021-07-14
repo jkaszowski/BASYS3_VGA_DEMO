@@ -7,13 +7,13 @@ module top (
 	output			Vsync
 );
 
-wire [9:0] x;
+wire [10:0] x;
 wire [9:0] y;
 wire dsp_en;
 
-reg [3:0] red	=	4'hf;
-reg [3:0] blue	=	4'h0;
-reg [3:0] green	=	4'h0;
+wire [3:0] red;
+wire [3:0] green;
+wire [3:0] blue;
 
 clock_vga mod1(
 	.i_clk(CLK100MHZ),
@@ -22,6 +22,15 @@ clock_vga mod1(
 	.o_next_x(x),
 	.o_next_y(y),
 	.o_disp_en(dsp_en)
+);
+
+imageGenerator mod2(
+	.i_clk(CLK100MHZ),
+	.i_x(x),
+	.i_y(y),
+	.o_green(green),
+	.o_red(red),
+	.o_blue(blue)
 );
 
 assign vgaBlue 	= dsp_en ? blue : 0;

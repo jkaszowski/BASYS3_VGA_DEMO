@@ -11,39 +11,38 @@ module clock_vga(
 
 /*
 
-The purpose of this module is to generate VGA sync signals and count current pixel position.
-
+The purpose of this module is to generate VGA sync signals and gice current pixel position.
+Specify what image properties you want below:
 */
 
-// Clock divider
+localparam display_x 		= 11'd	640;
+localparam front_porch_x 	= 11'd	16;
+localparam sync_pulse_x 	= 11'd	96;
+localparam back_porch_x 	= 11'd	48;
+
+localparam display_y 		= 11'd	480;
+localparam front_porch_y 	= 11'd	10;
+localparam sync_pulse_y 	= 11'd	2;
+localparam back_porch_y 	= 11'd	33;
+
+// Clock source
 
 wire pixel_clk;
-
 clk_vga clock_converter(
 	.clk_in1(i_clk),
 	.clk_out1(pixel_clk)
 );
 
-// Registers holding values needed for timing
+// working registers
 
-reg [10:0] x 		= 0;
-reg [10:0] next_x 	= 0;
-reg [9:0] y 		= 0;
-reg [9:0] next_y 	= 0;
+reg [10:0] 	x 		= 0;
+reg [10:0] 	next_x 	= 0;
+reg [9:0] 	y 		= 0;
+reg [9:0] 	next_y 	= 0;
 
 reg hsync = 1;
 reg vsync = 1;
 reg display_en = 0;
-
-localparam display_x 		= 11'd	1024;
-localparam display_y 		= 11'd	768;
-localparam front_porch_x 	= 11'd	24;
-localparam front_porch_y 	= 11'd	3;
-localparam sync_pulse_x 	= 11'd	136;
-localparam sync_pulse_y 	= 11'd	6;
-localparam back_porch_x 	= 11'd	160;
-localparam back_porch_y 	= 11'd	29;
-
 
 always @(posedge pixel_clk ) begin
 	if ( (display_x + front_porch_x < x) && (x <= display_x + front_porch_x + sync_pulse_x) ) begin
@@ -67,6 +66,8 @@ always @(posedge pixel_clk ) begin
 	if (x< display_x && y < display_y) begin
 		display_en <= 1;
 	end else display_en <= 0;
+	if (x < display_x) next_x <= x + 1; else next_x <= 0;
+	if (y < display_y) next_y <= y + 1; else next_y <= 0;
 end
 
 //assign variables to outputs
